@@ -46,7 +46,7 @@ else {
 	//
 	// error Attachment not found
 	//
-	$ins = new HttpFormPost();
+	$ins->initialize();
 	$ins->set_url((empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
 	$ins->add_file("upload_file2", "missing.txt", "missing", "text/plain");
 	$response = $ins->submit();
@@ -62,7 +62,7 @@ else {
 	//
 	// error 404
 	//
-	$ins = new HttpFormPost();
+	$ins->initialize();
 	$ins->set_url("http://aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 	$response = $ins->submit();
 	if (FALSE === $response) {
