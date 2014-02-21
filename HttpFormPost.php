@@ -162,13 +162,14 @@ class HttpFormPost {
 		//
 		// make request
 		//
-		$this->_header_list[] = "Content-Type: multipart/form-data; boundary={$this->_boundary}";
-		$this->_header_list[] = "Content-Length: " . strlen($content);
+		$header = $this->_header_list;
+		$header[] = "Content-Type: multipart/form-data; boundary={$this->_boundary}";
+		$header[] = "Content-Length: " . strlen($content);
 
 		$stream_context = stream_context_create(array(
 			"http" => array(
 				"method" => "POST",
-				"header" => implode("\r\n", $this->_header_list),
+				"header" => implode("\r\n", $header),
 				"content" => $content
 			)
 		));
