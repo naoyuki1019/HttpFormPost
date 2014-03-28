@@ -11,6 +11,7 @@ else {
 
 	include "HttpFormPost.php";
 
+	echo "<h1>success</h1>";
 	$ins = new HttpFormPost();
 	$ins->set_url((empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
 
@@ -25,8 +26,8 @@ else {
 	$ins->add_keyval_array("param", $keyval);
 
 	// add_file
-	$ins->add_file("upload_file[]", "abc.txt", "abc1", "text/plain");
-	$ins->add_file("upload_file[]", "abc.txt", "abc2", "text/plain");
+	$ins->add_file("upload_file[]", "abc.txt", "abc1.txt", "text/plain");
+	$ins->add_file("upload_file[]", "abc.txt", "abc2.txt", "text/plain");
 
 	// add_header
 	$ins->add_header("Referer: http://umauma.com");
@@ -41,11 +42,7 @@ else {
 	}
 
 
-	echo "==========================================================<br>";
-
-	//
-	// error Attachment not found
-	//
+	echo "<h1>error Attachment not found</h1>";
 	$ins->initialize();
 	$ins->set_url((empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
 	$ins->add_file("upload_file2", "missing.txt", "missing", "text/plain");
@@ -57,13 +54,10 @@ else {
 		echo $response;
 	}
 
-	echo "==========================================================<br>";
 
-	//
-	// error 404
-	//
+	echo "<h1>error 404</h1>";
 	$ins->initialize();
-	$ins->set_url("http://aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	$ins->set_url("http://abcd.not.found.com");
 	$response = $ins->submit();
 	if (FALSE === $response) {
 		echo implode("<br>", $ins->errors()) . "<br>";

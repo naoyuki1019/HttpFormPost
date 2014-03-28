@@ -158,6 +158,9 @@ class HttpFormPost {
 
 
 		$content = $this->_make_content();
+		if (! empty($this->_errors)) {
+			return FALSE;
+		}
 
 		//
 		// make request
@@ -170,24 +173,19 @@ class HttpFormPost {
 			"http" => array(
 				"method" => "POST",
 				"header" => implode("\r\n", $header),
-				"content" => $content
+				"content" => $content,
 			)
 		));
 
-		if (! empty($this->_errors)) {
-			return FALSE;
-		}
+		$response = FALSE;
 
 		$fp = @fopen($this->_url, "rb", false, $stream_context);
-		if (FALSE === $fp) {
-			$this->_errors[] = "Problem : {$php_errormsg}";
-			return FALSE;
+		if ($fp) {
+			$response = @stream_get_contents($fp);
 		}
 
-		$response = @stream_get_contents($fp);
 		if (FALSE === $response) {
 			$this->_errors[] = "Problem : {$php_errormsg}";
-			return FALSE;
 		}
 
 		return $response;
