@@ -20,6 +20,18 @@ class HttpFormPost {
 
 	/**
 	 *
+	 * @var float
+	 */
+	protected $_default_socket_timeout = "";
+
+	/**
+	 *
+	 * @var float
+	 */
+	protected $_socket_timeout = "";
+
+	/**
+	 *
 	 * @var array
 	 */
 	protected $_header_list = array();
@@ -57,6 +69,8 @@ class HttpFormPost {
 
 		$this->_url = "";
 		$this->_boundary = "---------------------" . substr(md5(rand(0, 32000)), 0, 15);
+		$this->_default_socket_timeout = ini_get('default_socket_timeout');
+		$this->_socket_timeout = $this->_default_socket_timeout;
 		$this->_header_list = array();
 		$this->_file_list = array();
 		$this->_text_list = array();
@@ -80,6 +94,16 @@ class HttpFormPost {
 	public function set_boundary($boundary) {
 		//TODO validation
 		$this->_boundary = $boundary;
+	}
+
+
+	/**
+	 *
+	 * @param string $socket_timeout
+	 */
+	public function set_timeout($socket_timeout) {
+		//TODO validation
+		$this->_socket_timeout = $socket_timeout;
 	}
 
 
@@ -169,13 +193,17 @@ class HttpFormPost {
 		$header[] = "Content-Type: multipart/form-data; boundary={$this->_boundary}";
 		$header[] = "Content-Length: " . strlen($content);
 
-		$stream_context = stream_context_create(array(
+		$stream_context_options = array(
 			"http" => array(
 				"method" => "POST",
 				"header" => implode("\r\n", $header),
 				"content" => $content,
 			)
-		));
+		);
+
+		$this->_ini_set($stream_context_options);
+
+		$stream_context = stream_context_create($stream_context_options);
 
 		$response = FALSE;
 
@@ -188,7 +216,45 @@ class HttpFormPost {
 			$this->_errors[] = "Problem : {$php_errormsg}";
 		}
 
+		$this->_default_ini_set();
 		return $response;
+	}
+
+
+	/**
+	 *
+	 * @param array $stream_context_options
+	 */
+	protected function _ini_set(& $stream_context_options) {
+
+		// socket_timeout
+		if (version_compare(phpversion(), "5.2.1", "<")) {
+			ini_set('default_socket_timeout', $this->_socket_timeout);
+		}
+		else {
+			$stream_context_options["http"]["timeout"] = $this->_socket_timeout;
+		}
+
+		// track_errors
+		$this->_trac_errors = ini_get('track_errors');
+		ini_set('track_errors', 1);
+
+	}
+
+
+	/**
+	 *
+	 */
+	protected function _default_ini_set() {
+
+		// track_errors
+		ini_set('track_errors', $this->_trac_errors);
+
+		// socket_timeout
+		if (version_compare(phpversion(), "5.2.1", "<")) {
+			ini_set('default_socket_timeout', $this->_default_socket_timeout);
+		}
+
 	}
 
 
